@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import axios from 'axios';
+import * as _ from 'lodash';
 import { validateAssuranceSchema } from '../helpers/schemas';
 import { ApiError, ApiResponse, compareHashedPassword } from '../../../../helpers';
 
+const db = require('../../../../tasas/vidaInsure.json');
 
 
 
@@ -11,47 +13,72 @@ const AUTH = {
     password: "9YEL$m3Kcs?5"
 }
 
+let callMedicatelApi = async (metadata: z.infer<typeof validateAssuranceSchema>) => {
 
-let callMedicatelApi = async (data: z.infer<typeof validateAssuranceSchema>) => {
-    let result: any = await axios.post('https://api-dev.medicatel.red/cotizar/vida/seguros_plus', {
-        "edad": data.age,
-        "sumaAsegurada": data.insuredAmount,
-        "sexo": data.gender
-    }, {
-        auth: {
-            username: AUTH.username,
-            password: AUTH.password
-        }
-    }).catch((error: any) => {
-        if (error.response) {
-            console.log(error.response.status);
-        } else if (error.request) {
-            console.log("network error");
-        } else {
-            console.log(error);
-        }
-    });
+    try {
+        let result: any = await axios.post('https://api-dev.medicatel.red/cotizar/vida/seguros_plus', {
+            "edad": metadata.age,
+            "sumaAsegurada": metadata.insuredAmount,
+            "sexo": metadata.gender
+        }, {
+            auth: {
+                username: AUTH.username,
+                password: AUTH.password
+            }
+        });
 
-    console.log(result.statusCode)
-    if(result.statusCode === 200){
-        return result.data;
+        return result.data.primaAnual;
+    } catch (error) {
+        console.log(error);
+        return null;
     }
-    return null;
 }
 
+
+let getRate = (metadata: any, item: any) => {
+    let rate = 0;
+    if (metadata.gender === 'F' && metadata.smoke === false) {
+        rate = item.mujerNoFumadora;
+    } else if (metadata.gender === 'M' && metadata.smoke === false) {
+        rate = item.hombreNoFumador;
+    } else if (metadata.gender === 'F' && metadata.smoke === true) {
+        rate = item.mujerFumadora;
+    } else {
+        rate = item.hombreFumadora;
+    }
+
+    return rate;
+}
+
+let getAnnualPremium = (rate: any, metadata: any) => {
+    return (rate / 1000) * metadata.insuredAmount;
+}
+
+let getInsureAmount = (metadata: z.infer<typeof validateAssuranceSchema>) => {
+    let data: any = _.find(db, (item: any) => {
+        return item.Edad === metadata.age;
+    });
+
+    let rate = getRate(metadata, data);
+
+    return getAnnualPremium(rate, metadata);
+}
 
 export async function AssuranceController(
     body: z.infer<typeof validateAssuranceSchema>
 ) {
-    let medicalAssurance = await callMedicatelApi(body);
-
-    console.log(medicalAssurance)
+    let medicalAssurance: any = await callMedicatelApi(body);
+    let insureAmount: any = getInsureAmount(body);
+    console.log(insureAmount);
 
     return new ApiResponse({
         statusCode: 200,
         message: 'Success',
         success: true,
-        data: {},
+        data: {
+            insureAmount,
+            medicalAssurance
+        },
         title: "Success"
     });
 }
