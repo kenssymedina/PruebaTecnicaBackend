@@ -27,7 +27,7 @@ let callMedicatelApi = async (metadata: z.infer<typeof validateAssuranceSchema>)
             }
         });
 
-        return result.data.primaAnual;
+        return Math.round(result.data.data.primaAnual);
     } catch (error) {
         console.log(error);
         return null;
@@ -69,8 +69,7 @@ export async function AssuranceController(
 ) {
     let medicalAssurance: any = await callMedicatelApi(body);
     let insureAmount: any = getInsureAmount(body);
-    console.log(insureAmount);
-
+    
     return new ApiResponse({
         statusCode: 200,
         message: 'Success',
