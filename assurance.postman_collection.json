@@ -1,0 +1,38 @@
+{
+	"info": {
+		"_postman_id": "5f90aa3d-87ae-4f3e-8f64-b151911cedc1",
+		"name": "assurance",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6033160"
+	},
+	"item": [
+		{
+			"name": "localhost:3000/api/assurance",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"gender\": \"F\",\r\n  \"smoke\": false,\r\n  \"insuredAmount\": 200000,\r\n  \"age\": 25\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/api/assurance",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"assurance"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
