@@ -12,3 +12,11 @@ export const validateAssuranceSchema = z.object({
   insuredAmount: z.number().min(0),
   age: z.number().gte(18),
 });
+
+export const validateItemsSchema = z.object({
+  Edad: z.number(),
+  hombreNoFumador: z.number(),
+  mujerNoFumadora: z.number(),
+  hombreFumador: z.number(),
+  mujerFumadora: z.number()
+});

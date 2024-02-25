@@ -7,10 +7,10 @@ const user = {
   password: "$2a$12$xmU1v4tWlSpAKFUqDhQOV.5yhQWNLNsjohhVjvy9iay6qOH/GOU/y"
 }
 
-export async function exampleController(
+export async function userController(
   body: z.infer<typeof validateLoginSchema>
 ) {
-  // manange errors
+ 
   if (body.password.length <= 6) {
     throw new ApiError({ statusCode: 400, message: 'Invalid password', title: "Warning" });
   }
@@ -30,3 +30,5 @@ export async function exampleController(
     title: "Success"
   });
 }
+
+export default userController;
